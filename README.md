@@ -1,4 +1,12 @@
 # Analisis de datos exploratorios
-# Datos productivos asociados a grupos de salmones
-# Marcos Mancilla
-# mmancilla@adldiagnostic.cl
+Tírulo: Datos productivos asociados a grupos de salmones
+# Autor
+Marcos Mancilla
+# Contacto
+<mmancilla@adldiagnostic.cl>
+
+# Resumen del problema a resolver
+
+# Descriptión detallada de los datos
+
+
