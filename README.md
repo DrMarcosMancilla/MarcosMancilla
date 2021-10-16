@@ -1,5 +1,5 @@
 # Analisis de datos exploratorios
-Tírulo: Datos productivos asociados a grupos de salmones
+Título: Datos productivos asociados a grupos de salmones
 # Autor
 Marcos Mancilla
 # Contacto
