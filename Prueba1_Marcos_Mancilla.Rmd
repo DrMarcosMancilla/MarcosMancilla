@@ -5,7 +5,7 @@ date: "16/10/2021"
 output: pdf_document
 ---
 
-```{r setup, include=FALSE warning=FALSE,message=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(readxl)
 library(graphics)
@@ -33,7 +33,7 @@ ggplot(dat, aes(x = Mortalidad)) +
   geom_histogram()+ scale_x_continuous(limit = c(0,200))+ scale_y_continuous(limit = c(0,2000))
 ```
 
-```{r, include=TRUE, echo=FALSE}
+```{r}
 ggplot(dat, aes(x = Mortalidad_Biomasa_kg)) +
   geom_histogram()+ scale_x_continuous(limit = c(0,200))+ scale_y_continuous(limit = c(0,2000))
 ```
@@ -46,7 +46,6 @@ boxplot(dat$Biomasa_kg, col="light blue", main = "Boxplot Biomasa", ylab = "Biom
 
 ```{r}
 par(mfrow=c(1,2))
-
 hist(dat$Mortalidad, col="light blue", main = "Histograma Mortalidad", xlab = "Mortalidad (n°)", 
      xlim = c(0, 2000),
      ylim = c(0, 10000))
@@ -62,6 +61,13 @@ str(dat)
 table(dat$Subgrupo,dat$Centro)
 tabla1 <- with(dat,table(Subgrupo,Centro))
 prop.table(tabla1)
-table(dat$Subgrupo,dat$Mortalidad)
-table(dat$Centro,dat$Mortalidad)
+tabla1 <- data.frame(M_V_Final_Weight_g_Spring, M_V_Final_Weight_g_B)
+colnames(tabla1) <- c("Peso_Final_Promedio_Cepa_Spring","Varianza_Peso_Final_Spring", "Peso_Final_Promedio_Cepa_B","Varianza_Peso_Final_B")
+
+knitr::kable(Tabla,caption ="Medias y varianzas de la variable Final_Weight(g) para las cepas Spring y B")
+```
+
+Los datos no están balanceados. Hay más observaciones para el Subgrupo QTL2 (70,7%) que para otros subgrupos
+```{r}
+
 ```
