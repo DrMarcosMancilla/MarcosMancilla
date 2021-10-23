@@ -1,0 +1,67 @@
+---
+title: "QTL-SRS"
+author: "Marcos Mancilla"
+date: "16/10/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE warning=FALSE,message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+library(graphics)
+library(psych)
+library(stats)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+```{r, include=TRUE, warning=FALSE,message=FALSE}
+dat <- read_excel("dataset2.XLS")
+summary(dat)
+head(dat)
+str(dat)
+```
+
+```{r, include=TRUE, echo=FALSE}
+ggplot(dat, aes(x = Biomasa_kg)) +
+  geom_histogram()
+```
+
+```{r, include=TRUE, echo=FALSE}
+ggplot(dat, aes(x = Mortalidad)) +
+  geom_histogram()+ scale_x_continuous(limit = c(0,200))+ scale_y_continuous(limit = c(0,2000))
+```
+
+```{r, include=TRUE, echo=FALSE}
+ggplot(dat, aes(x = Mortalidad_Biomasa_kg)) +
+  geom_histogram()+ scale_x_continuous(limit = c(0,200))+ scale_y_continuous(limit = c(0,2000))
+```
+
+```{r, include=TRUE, echo=FALSE}
+par(mfrow=c(1,2))
+hist(dat$Biomasa_kg, col="light blue", main = "Histograma Biomasa", xlab = "Biomasa (kg)")
+boxplot(dat$Biomasa_kg, col="light blue", main = "Boxplot Biomasa", ylab = "Biomasa (kg)")
+```
+
+```{r, include=TRUE, echo=FALSE}
+par(mfrow=c(1,2))
+
+hist(dat$Mortalidad, col="light blue", main = "Histograma Mortalidad", xlab = "Mortalidad (n°)", 
+     xlim = c(0, 2000),
+     ylim = c(0, 10000))
+boxplot(dat$Mortalidad, col="light blue", main = "Boxplot Mortalidad", ylab = "Mortalidad (n°)")
+```
+
+```{r, include=TRUE, echo=FALSE}
+table(dat$Subgrupo)
+table(dat$Centro)
+dat$Centro <- as.factor(dat$Centro)
+dat$Subgrupo <- as.factor(dat$Subgrupo)
+str(dat)
+table(dat$Subgrupo,dat$Centro)
+tabla1 <- with(dat,table(Subgrupo,Centro))
+prop.table(tabla1)
+table(dat$Subgrupo,dat$Mortalidad)
+table(dat$Centro,dat$Mortalidad)
+```
