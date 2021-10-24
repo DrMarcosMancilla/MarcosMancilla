@@ -16,33 +16,29 @@ library(tidyr)
 library(ggplot2)
 ```
 
-```{r, include=TRUE, warning=FALSE,message=FALSE}
+```{r}
 dat <- read_excel("dataset2.XLS")
 summary(dat)
 head(dat)
 str(dat)
 ```
 
-
-```{r, include=TRUE, echo=FALSE}
+```{r}
 ggplot(dat, aes(x = Biomasa_kg)) +
   geom_histogram()
 ```
 
-
-```{r, include=TRUE, echo=FALSE}
+```{r}
 ggplot(dat, aes(x = Mortalidad)) +
   geom_histogram()+ scale_x_continuous(limit = c(0,200))+ scale_y_continuous(limit = c(0,2000))
 ```
-
 
 ```{r, include=TRUE, echo=FALSE}
 ggplot(dat, aes(x = Mortalidad_Biomasa_kg)) +
   geom_histogram()+ scale_x_continuous(limit = c(0,200))+ scale_y_continuous(limit = c(0,2000))
 ```
 
-
-```{r, include=TRUE, echo=FALSE}
+```{r}
 par(mfrow=c(1,2))
 hist(dat$Biomasa_kg, col="light blue", main = "Histograma Biomasa", xlab = "Biomasa (kg)")
 boxplot(dat$Biomasa_kg, col="light blue", main = "Boxplot Biomasa", ylab = "Biomasa (kg)")
@@ -56,24 +52,44 @@ hist(dat$Mortalidad, col="light blue", main = "Histograma Mortalidad", xlab = "M
 boxplot(dat$Mortalidad, col="light blue", main = "Boxplot Mortalidad", ylab = "Mortalidad (n°)")
 ```
 
-```{r, include=TRUE, echo=FALSE}
+```{r}
 table(dat$Subgrupo)
 table(dat$Centro)
 dat$Centro <- as.factor(dat$Centro)
 dat$Subgrupo <- as.factor(dat$Subgrupo)
 str(dat)
+summary(dat)
+```
+
+```{r}
 table(dat$Subgrupo,dat$Centro)
 tabla1 <- with(dat,table(Subgrupo,Centro))
 prop.table(tabla1)
-
-tabla1 <- data.frame(M_V_Final_Weight_g_Spring, M_V_Final_Weight_g_B)
-colnames(tabla1) <- c("Peso_Final_Promedio_Cepa_Spring","Varianza_Peso_Final_Spring", "Peso_Final_Promedio_Cepa_B","Varianza_Peso_Final_B")
-
-knitr::kable(Tabla,caption ="Medias y varianzas de la variable Final_Weight(g) para las cepas Spring y B")
+tabla1_prop <- with(dat,prop.table(tabla1))
+knitr::kable(tabla1_prop,caption ="Proporción datos por Subgrupo de peces en diferentes Centros")
 ```
 
-Los datos no están balanceados. Hay más observaciones para el Subgrupo QTL2 (70,7%) que para otros subgrupos
+Los datos no están balanceados. Hay más observaciones para el Subgrupo QTL2 (70,7%) que para otros subgrupos. El Subgrupo en menor proporción es el SQTL que está presente solo en Centro C.
 ```{r}
-table(dat$Subgrupo,dat$Mortalidad)
-table(dat$Centro,dat$Mortalidad)
+Table <- dat %>%
+  filter(Centro == "1")%>%
+  summarize("Máximo"=max(N_peces), "Mínimo"=min(N_peces))
+
+knitr::kable(Table, caption = "Tabla 2. Datos Subgrupo 1")
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
 ```
