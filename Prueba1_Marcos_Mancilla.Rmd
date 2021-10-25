@@ -17,7 +17,7 @@ library(ggplot2)
 ```
 
 ```{r}
-dat <- read_excel("dataset2.XLS")
+dat <- read_excel("dataset2.xls")
 summary(dat)
 head(dat)
 str(dat)
@@ -45,14 +45,6 @@ boxplot(dat$Biomasa_kg, col="light blue", main = "Boxplot Biomasa", ylab = "Biom
 ```
 
 ```{r}
-par(mfrow=c(1,2))
-hist(dat$Mortalidad, col="light blue", main = "Histograma Mortalidad", xlab = "Mortalidad (n°)", 
-     xlim = c(0, 2000),
-     ylim = c(0, 10000))
-boxplot(dat$Mortalidad, col="light blue", main = "Boxplot Mortalidad", ylab = "Mortalidad (n°)")
-```
-
-```{r}
 table(dat$Subgrupo)
 table(dat$Centro)
 dat$Centro <- as.factor(dat$Centro)
@@ -71,15 +63,20 @@ knitr::kable(tabla1_prop,caption ="Proporción datos por Subgrupo de peces en di
 
 Los datos no están balanceados. Hay más observaciones para el Subgrupo QTL2 (70,7%) que para otros subgrupos. El Subgrupo en menor proporción es el SQTL que está presente solo en Centro C.
 ```{r}
-Table <- dat %>%
-  filter(Centro == "1")%>%
-  summarize("Máximo"=max(N_peces), "Mínimo"=min(N_peces))
-
-knitr::kable(Table, caption = "Tabla 2. Datos Subgrupo 1")
+df1 <-dat %>%
+  select(Subgrupo, Centro, Unidad, Biomasa_kg, N_peces)%>%
+  group_by(Subgrupo, Centro, Unidad)%>%
+  summarize(Maximo=max(N_peces), Minimo=min(N_peces))
+knitr::kable(df1,caption = "N° de peces por unidad (jaula)")
 ```
 
+El análisis anterior indica que la mayoría de las unidades (jaulas) se cosecharon al final del periodo de observación (Mínimo = 0), quedando solo 9 jaulas con peces. Si sumamos el número de peces por Subgrupo, confirmamos que el Subgrupo QTL2 está sobrerrepresentado. 
 ```{r}
-
+df2 <-df1 %>%
+  select(Subgrupo, Maximo)%>%
+  group_by(Subgrupo)%>%
+    summarize(Peces=sum(Maximo))
+knitr::kable(df2,caption = "N° de peces por Subgrupo")
 ```
 
 ```{r}
