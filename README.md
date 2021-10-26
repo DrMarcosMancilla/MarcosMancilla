@@ -2,7 +2,7 @@
 Título: QTL-SRS
 
 # Autor
-Marcos Mancilla
+Dr. Marcos Mancilla
 
 # Contacto
 <mmancilla@adldiagnostic.cl>
