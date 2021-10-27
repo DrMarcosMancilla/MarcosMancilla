@@ -24,12 +24,46 @@ head(dat)
 str(dat)
 ```
 
-Graficando variables
+# Graficando variables
 
-El gráfico representa la distribución de la variable Biomasa (kg) entre Unidades (Jaulas).
+```{r}
+ggplot(dat, aes(x = N_peces)) +
+  geom_histogram()
+```
+
+# El histograma representa la distribución de la variable N_peces, que corresponde al n° de peces remanente en jaula.
+
 ```{r}
 ggplot(dat, aes(x = Biomasa_kg)) +
   geom_histogram()
+```
+
+# El histograma representa la distribución de la variable Biomasa (kg).
+
+```{r}
+ggplot(dat, aes(x = Mortalidad)) +
+  geom_histogram()+ scale_x_continuous(limit = c(0,15))+ scale_y_continuous(limit = c(0,2000))
+```
+
+# Histograma de la variable Mortalidad por SRS
+
+```{r}
+ggplot(dat, aes(x = Mortalidad_Biomasa_kg)) +
+  geom_histogram()+ scale_x_continuous(limit = c(0,15))+ scale_y_continuous(limit = c(0,700))
+```
+
+# Histograma de la variable Biomasa asociada a mortalidad por SRS
+
+```{r}
+dat1 <- dat
+dat1$Mortalidad <- as.factor(dat1$Mortalidad)
+```
+
+# Transformamos a factor algunas variables a graficar por boxplot
+
+```{r}
+ggplot(dat, aes(x = N_peces)) +
+  geom_boxplot()
 ```
 
 ```{r}
@@ -37,21 +71,9 @@ ggplot(dat, aes(x = Biomasa_kg)) +
   geom_boxplot()
 ```
 
-Para el histograma de la variable "Mortalidad", hacemos un ajuste de escala para apreciar distribución de valores más frecuentes
 ```{r}
-ggplot(dat, aes(x = Mortalidad)) +
-  geom_histogram()+ scale_x_continuous(limit = c(0,200))+ scale_y_continuous(limit = c(0,2000))
-```
-
-```{r}
-ggplot(dat, aes(x = Mortalidad)) +
-  geom_boxplot()+ scale_x_continuous(limit = c(0,2000))
-```
-
-Para el histograma de la variable Biomasa asociada a mortalidad ("Mortalidad_Biomasa_kg", hacemos un ajuste de escala similar al relizado para la variable Mortalidad.
-```{r}
-ggplot(dat, aes(x = Mortalidad_Biomasa_kg)) +
-  geom_histogram()+ scale_x_continuous(limit = c(0,200))+ scale_y_continuous(limit = c(0,2000))
+ggplot(dat1, aes(x = Mortalidad)) +
+  geom_boxplot()
 ```
 
 ```{r}
@@ -68,6 +90,7 @@ str(dat)
 summary(dat)
 ```
 
+# Calculamos el número de observaciones por Subgrupo. Luego expresamos la cifra como proporción.
 ```{r}
 table(dat$Subgrupo,dat$Centro)
 tabla1 <- with(dat,table(Subgrupo,Centro))
@@ -76,7 +99,7 @@ tabla1_prop <- with(dat,prop.table(tabla1))
 knitr::kable(tabla1_prop,caption ="Proporción datos por Subgrupo de peces en diferentes Centros")
 ```
 
-Los datos no están balanceados. Hay más observaciones para el Subgrupo QTL2 (70,7%) que para otros subgrupos. El Subgrupo en menor proporción es el SQTL que está presente solo en Centro C.
+# Los datos no están balanceados. Hay más observaciones para el Subgrupo QTL2 (70,7%) que para otros subgrupos. El Subgrupo en menor proporción es el SQTL que está presente solo en Centro C.
 ```{r}
 df1 <-dat %>%
   select(Subgrupo, Centro, Unidad, Biomasa_kg, N_peces)%>%
@@ -85,7 +108,7 @@ df1 <-dat %>%
 knitr::kable(df1,caption = "N° de peces por unidad (jaula)")
 ```
 
-El análisis anterior indica que la mayoría de las unidades (jaulas) se cosecharon al final del periodo de observación (Mínimo = 0), quedando solo 9 jaulas con peces. Si sumamos el número de peces por Subgrupo, confirmamos que el Subgrupo QTL2 está sobrerrepresentado. Aprovechamos de calcular la biomasa que llegaron a desarrollar estos Subgrupos.
+# El análisis anterior indica que la mayoría de las unidades (jaulas) se cosecharon al final del periodo de observación (Mínimo = 0), quedando solo 9 jaulas con peces. Si sumamos el número de peces por Subgrupo, confirmamos que el Subgrupo QTL2 está sobrerrepresentado. Aprovechamos de calcular la biomasa que llegaron a desarrollar estos Subgrupos.
 ```{r}
 df2 <-df1 %>%
   select(Subgrupo, Maximo, Max_Biom)%>%
@@ -94,7 +117,7 @@ df2 <-df1 %>%
 knitr::kable(df2,caption = "N° de peces y biomasa por Subgrupo")
 ```
 
-Calculamos ahora la mortalidad asociada a cada Unidad 
+# Calculamos ahora la mortalidad asociada a cada Unidad.
 ```{r}
 df3 <-dat %>%
   select(Subgrupo, Centro, Unidad, Mortalidad, Mortalidad_Biomasa_kg)%>%
@@ -103,7 +126,7 @@ df3 <-dat %>%
 knitr::kable(df3,caption = "Mortalidad de peces por Unidad")
 ```
 
-Ahora, calculamos la mortalidad asociada por Subgrupo
+# Ahora, calculamos la mortalidad asociada por Subgrupo.
 ```{r}
 df4 <-df3 %>%
   select(Subgrupo, Mort_peces, Biomas_mort)%>%
@@ -112,7 +135,7 @@ df4 <-df3 %>%
 knitr::kable(df4,caption = "Mortalidad de peces por Subgrupo")
 ```
 
-Queremos agregar a esta tabla las columnas de n° de peces y biomasa total del df2
+# Queremos agregar a esta tabla las columnas de n° de peces y biomasa total del df2.
 ```{r}
 Tabla3 <- merge(df2,df4,by="Subgrupo")
 knitr::kable(Tabla3,caption = "Resumen datos de Subgrupos")
