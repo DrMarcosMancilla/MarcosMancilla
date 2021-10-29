@@ -24,62 +24,84 @@ head(dat)
 str(dat)
 ```
 
-# Graficando variables
+# Graficamos variables de interés (histogramas, boxplots, densidad y densidad acumulada)
 
+# Peces por subgrupo
 ```{r}
-ggplot(dat, aes(x = N_peces)) +
+ggplot(dat, aes(x = N_peces, fill=Subgrupo)) +
   geom_histogram()
 ```
 
-# El histograma representa la distribución de la variable N_peces, que corresponde al n° de peces remanente en jaula.
+```{r}
+ggplot(dat, aes(x = Subgrupo, y = N_peces, fill=Subgrupo)) +
+  geom_boxplot()
+```
 
 ```{r}
-ggplot(dat, aes(x = Biomasa_kg)) +
+plot(density(dat$N_peces), main="Densidad empírica", xlab="N_peces")
+```
+
+```{r}
+plot(ecdf(dat$N_peces), main="Distribución acumulada empírica", xlab="N_peces")
+```
+
+# Biomasa viva por subgrupo
+```{r}
+ggplot(dat, aes(x = Biomasa_kg, fill=Subgrupo)) +
   geom_histogram()
 ```
 
-# El histograma representa la distribución de la variable Biomasa (kg).
+```{r}
+ggplot(dat, aes(x=Subgrupo, y = Biomasa_kg, fill=Subgrupo)) +
+  geom_boxplot()
+```
 
 ```{r}
-ggplot(dat, aes(x = Mortalidad)) +
+plot(density(dat$Biomasa_kg), main="Densidad empírica", xlab="Biomasa (kg)")
+```
+
+```{r}
+plot(ecdf(dat$Biomasa_kg), main="Distribución acumulada empírica", xlab="Biomasa_kg")
+```
+
+# Mortalidad (n° peces) por subgrupo
+```{r}
+ggplot(dat, aes(x = Mortalidad, fill=Subgrupo)) +
   geom_histogram()+ scale_x_continuous(limit = c(0,15))+ scale_y_continuous(limit = c(0,2000))
 ```
 
-# Histograma de la variable Mortalidad por SRS
-
 ```{r}
-ggplot(dat, aes(x = Mortalidad_Biomasa_kg)) +
-  geom_histogram()+ scale_x_continuous(limit = c(0,15))+ scale_y_continuous(limit = c(0,700))
-```
-
-# Histograma de la variable Biomasa asociada a mortalidad por SRS
-
-```{r}
-dat1 <- dat
-dat1$Mortalidad <- as.factor(dat1$Mortalidad)
-```
-
-# Transformamos a factor algunas variables a graficar por boxplot
-
-```{r}
-ggplot(dat, aes(x = N_peces)) +
-  geom_boxplot()
+ggplot(dat, aes(x=Subgrupo, y = Mortalidad, fill=Subgrupo)) +
+  geom_boxplot()+ scale_y_continuous(limit = c(0,15))
 ```
 
 ```{r}
-ggplot(dat, aes(x = Biomasa_kg)) +
-  geom_boxplot()
+plot(density(dat$Mortalidad), main="Densidad empírica", xlab="Mortalidad (n)")
 ```
 
 ```{r}
-ggplot(dat1, aes(x = Mortalidad)) +
-  geom_boxplot()
+plot(ecdf(dat$Mortalidad), main="Distribución acumulada empírica", xlab="Mortalidad")
+```
+
+# Biomasa de la mortalidad por subgrupo
+```{r}
+ggplot(dat, aes(x = Mortalidad_Biomasa_kg, fill=Subgrupo)) +
+  geom_histogram()+ scale_x_continuous(limit = c(0,15))+ scale_y_continuous(limit = c(0,1000))
 ```
 
 ```{r}
-ggplot(dat, aes(x = Mortalidad_Biomasa_kg)) +
-  geom_boxplot()+ scale_x_continuous(limit = c(0,1800))
+ggplot(dat, aes(x=Subgrupo, y = Mortalidad_Biomasa_kg, fill=Subgrupo)) +
+  geom_boxplot()+ scale_y_continuous(limit = c(0,15))
 ```
+
+```{r}
+plot(density(dat$Mortalidad_Biomasa_kg), main="Densidad empírica", xlab="Biomasa Mortalidad (kg)")
+```
+
+```{r}
+plot(ecdf(dat$Mortalidad), main="Distribución acumulada empírica", xlab="Biomasa Mortalidad (kg)")
+```
+
 
 ```{r}
 table(dat$Subgrupo)
