@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 library(readxl)
 library(graphics)
 library(psych)
@@ -17,7 +17,7 @@ library(ggplot2)
 ```
 
 # Realizando análisis exploratorio de datos
-```{r}
+```{r, warning=FALSE, message=FALSE}
 dat <- read_excel("dataset2.xls")
 summary(dat)
 head(dat)
@@ -104,12 +104,25 @@ plot(ecdf(dat$Mortalidad), main="Distribución acumulada empírica", xlab="Bioma
 
 
 ```{r}
-table(dat$Subgrupo)
-table(dat$Centro)
-dat$Centro <- as.factor(dat$Centro)
-dat$Subgrupo <- as.factor(dat$Subgrupo)
-str(dat)
-summary(dat)
+dat1 <- dat
+table(dat1$Subgrupo)
+table(dat1$Centro)
+dat1$Centro <- as.factor(dat1$Centro)
+dat1$Subgrupo <- as.factor(dat1$Subgrupo)
+dat1$Unidad <- as.factor(dat1$Unidad)
+str(dat1)
+summary(dat1)
+```
+
+# Hacemos boxplot de variable respuesta en función de otras variables
+```{r}
+ggplot(dat1, aes(x=Centro, y = Mortalidad, fill=Subgrupo)) +
+  geom_boxplot()+ scale_y_continuous(limit = c(0,15))
+```
+
+```{r}
+ggplot(dat1, aes(x=Unidad, y = Mortalidad, fill=Subgrupo)) +
+  geom_boxplot()+ scale_y_continuous(limit = c(0,40))
 ```
 
 # Calculamos el número de observaciones por Subgrupo. Luego expresamos la cifra como proporción.
