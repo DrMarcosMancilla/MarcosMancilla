@@ -1,7 +1,7 @@
 ---
 title: "QTL-SRS"
 author: "Marcos Mancilla"
-date: "16/10/2021"
+date: "`r format(Sys.time(), '%d %B %Y')`"
 output: pdf_document
 ---
 
@@ -14,94 +14,123 @@ library(stats)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(knitr)
 ```
 
 # Realizando análisis exploratorio de datos
+
 ```{r, warning=FALSE, message=FALSE}
+# Este bloque de codigos importa los datos
 dat <- read_excel("dataset2.xls")
 summary(dat)
 head(dat)
 str(dat)
 ```
 
+# Observamos que el set de datos tiene 12.825 observaciones de 12 variables. Existe una variable fecha, 3 variables como texto (Centro, Unidad y Subgrupo) y 8 variables numéricas.
+
 # Graficamos variables de interés (histogramas, boxplots, densidad y densidad acumulada)
 
-# Peces por subgrupo
-```{r}
+# 1.- Peces por subgrupo
+
+```{r, warning=FALSE, message=FALSE}
 ggplot(dat, aes(x = N_peces, fill=Subgrupo)) +
-  geom_histogram()
+  geom_histogram(bins=30)+ labs(title = "Figura 1. Histograma variable N° de peces")
 ```
 
 ```{r}
 ggplot(dat, aes(x = Subgrupo, y = N_peces, fill=Subgrupo)) +
-  geom_boxplot()
+  geom_boxplot()+ labs(title = "Figura 2. Boxplot variable N° de peces")
 ```
 
 ```{r}
-plot(density(dat$N_peces), main="Densidad empírica", xlab="N_peces")
+plot(density(dat$N_peces), main="Figura 3. Densidad empírica variable N° peces", xlab="N_peces")
 ```
 
 ```{r}
-plot(ecdf(dat$N_peces), main="Distribución acumulada empírica", xlab="N_peces")
+plot(ecdf(dat$N_peces), main="Figura 4. Distribución acumulada empírica variable N° peces", xlab="N_peces")
 ```
 
-# Biomasa viva por subgrupo
-```{r}
+# 2.- Biomasa viva por subgrupo
+```{r, warning=FALSE, message=FALSE}
 ggplot(dat, aes(x = Biomasa_kg, fill=Subgrupo)) +
-  geom_histogram()
+  geom_histogram(bins = 30)+ labs(title = "Figura 5. Histograma variable Biomasa")
 ```
 
 ```{r}
 ggplot(dat, aes(x=Subgrupo, y = Biomasa_kg, fill=Subgrupo)) +
-  geom_boxplot()
+  geom_boxplot()+ labs(title = "Figura 6. Boxplot variable Biomasa")
 ```
 
 ```{r}
-plot(density(dat$Biomasa_kg), main="Densidad empírica", xlab="Biomasa (kg)")
+plot(density(dat$Biomasa_kg), main="Figura 7. Densidad empírica variable Biomasa", xlab="Biomasa (kg)")
 ```
 
 ```{r}
-plot(ecdf(dat$Biomasa_kg), main="Distribución acumulada empírica", xlab="Biomasa_kg")
+plot(ecdf(dat$Biomasa_kg), main="Figura 8. Distribución acumulada empírica variable Biomasa", xlab="Biomasa_kg")
 ```
 
-# Mortalidad (n° peces) por subgrupo
-```{r}
+# 3.- Mortalidad (n° peces) por subgrupo (variable respuesta)
+```{r, warning=FALSE, message=FALSE}
 ggplot(dat, aes(x = Mortalidad, fill=Subgrupo)) +
-  geom_histogram()+ scale_x_continuous(limit = c(0,15))+ scale_y_continuous(limit = c(0,2000))
+  geom_histogram(bin=30)+ labs(title = "Figura 9. Histograma variable Mortalidad")
 ```
 
+# Para apreciar mejor como se comporta esta variable, ajustamos el set de datos filtrando valores de Mortalidad <= 15.
+
 ```{r}
+dat2 <-dat %>%
+  select(Subgrupo, Centro, Unidad, Biomasa_kg, N_peces, Mortalidad)%>%
+  filter(Mortalidad <= 15)
+```
+
+# Se genera nuevo histograma
+
+```{r, warning=FALSE, message=FALSE}
+ggplot(dat2, aes(x = Mortalidad, fill=Subgrupo)) +
+  geom_histogram(bin=30)+ labs(title = "Figura 10. Histograma variable Mortalidad ajustado")
+```
+
+```{r, warning=FALSE, message=FALSE}
 ggplot(dat, aes(x=Subgrupo, y = Mortalidad, fill=Subgrupo)) +
-  geom_boxplot()+ scale_y_continuous(limit = c(0,15))
+  geom_boxplot()+ scale_y_continuous(limit = c(0,15))+ labs(title = "Figura 11. Boxplot variable Mortalidad")
 ```
 
 ```{r}
-plot(density(dat$Mortalidad), main="Densidad empírica", xlab="Mortalidad (n)")
+plot(density(dat$Mortalidad), main="Figura 12. Densidad empírica variable Mortalidad", xlab="Mortalidad (n)")
 ```
 
 ```{r}
-plot(ecdf(dat$Mortalidad), main="Distribución acumulada empírica", xlab="Mortalidad")
+plot(ecdf(dat$Mortalidad), main="Figura 13. Distribución acumulada empírica variable Mortalidad", xlab="Mortalidad")
 ```
 
-# Biomasa de la mortalidad por subgrupo
-```{r}
+# 4.- Biomasa de la mortalidad por subgrupo
+```{r, warning=FALSE, message=FALSE}
 ggplot(dat, aes(x = Mortalidad_Biomasa_kg, fill=Subgrupo)) +
-  geom_histogram()+ scale_x_continuous(limit = c(0,15))+ scale_y_continuous(limit = c(0,1000))
+  geom_histogram(bins = 30)+ labs(title = "Figura 14. Histograma variable Biomasa de Mortalidad")
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 ggplot(dat, aes(x=Subgrupo, y = Mortalidad_Biomasa_kg, fill=Subgrupo)) +
-  geom_boxplot()+ scale_y_continuous(limit = c(0,15))
+  geom_boxplot()+ scale_y_continuous(limit = c(0,15))+ labs(title = "Figura 15. Boxplot variable Biomasa de Mortalidad")
 ```
 
 ```{r}
-plot(density(dat$Mortalidad_Biomasa_kg), main="Densidad empírica", xlab="Biomasa Mortalidad (kg)")
+plot(density(dat$Mortalidad_Biomasa_kg), main="Figura 16. Densidad empírica variable Biomasa de Mortalidad", xlab="Biomasa Mortalidad (kg)")
 ```
 
 ```{r}
-plot(ecdf(dat$Mortalidad), main="Distribución acumulada empírica", xlab="Biomasa Mortalidad (kg)")
+plot(ecdf(dat$Mortalidad), main="Figura 17. Distribución acumulada empírica variable Biomasa de Mortalidad", xlab="Biomasa Mortalidad (kg)")
 ```
 
+# Hacemos boxplot de variable respuesta en función de otras variables de interés
+
+```{r, warning=FALSE, message=FALSE}
+ggplot(dat, aes(x=Centro, y = Mortalidad, fill=Subgrupo)) +
+  geom_boxplot()+ scale_y_continuous(limit = c(0,15))+ labs(title = "Figura 18. Boxplot variable Mortalidad para centro y subgrupo")
+```
+
+# Transformaciones de variables a factor
 
 ```{r}
 dat1 <- dat
@@ -114,16 +143,7 @@ str(dat1)
 summary(dat1)
 ```
 
-# Hacemos boxplot de variable respuesta en función de otras variables
-```{r}
-ggplot(dat1, aes(x=Centro, y = Mortalidad, fill=Subgrupo)) +
-  geom_boxplot()+ scale_y_continuous(limit = c(0,15))
-```
-
-```{r}
-ggplot(dat1, aes(x=Unidad, y = Mortalidad, fill=Subgrupo)) +
-  geom_boxplot()+ scale_y_continuous(limit = c(0,40))
-```
+# Determinar si los datos están balanceados
 
 # Calculamos el número de observaciones por Subgrupo. Luego expresamos la cifra como proporción.
 ```{r}
@@ -135,7 +155,7 @@ knitr::kable(tabla1_prop,caption ="Proporción datos por Subgrupo de peces en di
 ```
 
 # Los datos no están balanceados. Hay más observaciones para el Subgrupo QTL2 (70,7%) que para otros subgrupos. El Subgrupo en menor proporción es el SQTL que está presente solo en Centro C.
-```{r}
+```{r, warning=FALSE, message=FALSE}
 df1 <-dat %>%
   select(Subgrupo, Centro, Unidad, Biomasa_kg, N_peces)%>%
   group_by(Subgrupo, Centro, Unidad)%>%
@@ -144,7 +164,7 @@ knitr::kable(df1,caption = "N° de peces por unidad (jaula)")
 ```
 
 # El análisis anterior indica que la mayoría de las unidades (jaulas) se cosecharon al final del periodo de observación (Mínimo = 0), quedando solo 9 jaulas con peces. Si sumamos el número de peces por Subgrupo, confirmamos que el Subgrupo QTL2 está sobrerrepresentado. Aprovechamos de calcular la biomasa que llegaron a desarrollar estos Subgrupos.
-```{r}
+```{r, warning=FALSE, message=FALSE}
 df2 <-df1 %>%
   select(Subgrupo, Maximo, Max_Biom)%>%
   group_by(Subgrupo)%>%
@@ -153,7 +173,7 @@ knitr::kable(df2,caption = "N° de peces y biomasa por Subgrupo")
 ```
 
 # Calculamos ahora la mortalidad asociada a cada Unidad.
-```{r}
+```{r, warning=FALSE, message=FALSE}
 df3 <-dat %>%
   select(Subgrupo, Centro, Unidad, Mortalidad, Mortalidad_Biomasa_kg)%>%
   group_by(Subgrupo, Centro, Unidad)%>%
@@ -162,7 +182,7 @@ knitr::kable(df3,caption = "Mortalidad de peces por Unidad")
 ```
 
 # Ahora, calculamos la mortalidad asociada por Subgrupo.
-```{r}
+```{r, warning=FALSE, message=FALSE}
 df4 <-df3 %>%
   select(Subgrupo, Mort_peces, Biomas_mort)%>%
   group_by(Subgrupo)%>%
