@@ -27,9 +27,9 @@ head(dat)
 str(dat)
 ```
 
-# Observamos que el set de datos tiene 12.825 observaciones de 12 variables. Existe una variable fecha, 3 variables como texto (Centro, Unidad y Subgrupo) y 8 variables numéricas.
+# Observamos que el set de datos tiene 12.825 observaciones de 12 variables. Existe una variable fecha, 3 variables como texto (Centro, Unidad y Subgrupo) y 8 variables numéricas. Nos se aprecian datos faltantes.
 
-# Graficamos variables de interés (histogramas, boxplots, densidad y densidad acumulada)
+# Graficamos variables de interés (histogramas, boxplots, densidad y densidad acumulada).
 
 # Peces por subgrupo
 
@@ -147,43 +147,3 @@ knitr::kable(tabla1_prop,caption ="Proporción datos por Subgrupo de peces en di
 ```
 
 # Los datos no están balanceados. Hay más observaciones para el Subgrupo QTL2 (70,7%) que para otros subgrupos. El Subgrupo en menor proporción es el SQTL que está presente solo en Centro C.
-```{r, warning=FALSE, message=FALSE}
-df1 <-dat %>%
-  select(Subgrupo, Centro, Unidad, Biomasa_kg, N_peces)%>%
-  group_by(Subgrupo, Centro, Unidad)%>%
-  summarize(Maximo=max(N_peces), Minimo=min(N_peces), Max_Biom=round(max(Biomasa_kg),0))
-knitr::kable(df1,caption = "N° de peces por unidad (jaula)")
-```
-
-# El análisis anterior indica que la mayoría de las unidades (jaulas) se cosecharon al final del periodo de observación (Mínimo = 0), quedando solo 9 jaulas con peces. Si sumamos el número de peces por Subgrupo, confirmamos que el Subgrupo QTL2 está sobrerrepresentado. Aprovechamos de calcular la biomasa que llegaron a desarrollar estos Subgrupos.
-```{r, warning=FALSE, message=FALSE}
-df2 <-df1 %>%
-  select(Subgrupo, Maximo, Max_Biom)%>%
-  group_by(Subgrupo)%>%
-    summarize(N_Peces=sum(Maximo), Biomasa_total=sum(Max_Biom))
-knitr::kable(df2,caption = "N° de peces y biomasa por Subgrupo")
-```
-
-# Calculamos ahora la mortalidad asociada a cada Unidad.
-```{r, warning=FALSE, message=FALSE}
-df3 <-dat %>%
-  select(Subgrupo, Centro, Unidad, Mortalidad, Mortalidad_Biomasa_kg)%>%
-  group_by(Subgrupo, Centro, Unidad)%>%
-  summarize(Mort_peces = sum(Mortalidad), Biomas_mort=round(sum(Mortalidad_Biomasa_kg), 0))
-knitr::kable(df3,caption = "Mortalidad de peces por Unidad")
-```
-
-# Ahora, calculamos la mortalidad asociada por Subgrupo.
-```{r, warning=FALSE, message=FALSE}
-df4 <-df3 %>%
-  select(Subgrupo, Mort_peces, Biomas_mort)%>%
-  group_by(Subgrupo)%>%
-    summarize(Mortalidad = sum(Mort_peces), Biomasa_dead = sum(Biomas_mort))
-knitr::kable(df4,caption = "Mortalidad de peces por Subgrupo")
-```
-
-# Queremos agregar a esta tabla las columnas de n° de peces y biomasa total del df2.
-```{r}
-Tabla3 <- merge(df2,df4,by="Subgrupo")
-knitr::kable(Tabla3,caption = "Resumen datos de Subgrupos")
-```
