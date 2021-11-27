@@ -15,6 +15,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(knitr)
+library(VGAM)
 ```
 
 # Realizando análisis exploratorio de datos
@@ -147,3 +148,109 @@ knitr::kable(tabla1_prop,caption ="Proporción datos por Subgrupo de peces en di
 ```
 
 # Los datos no están balanceados. Hay más observaciones para el Subgrupo QTL2 (70,7%) que para otros subgrupos. El Subgrupo en menor proporción es el SQTL que está presente solo en Centro C.
+
+# Según lo sugerido en la evaluación 1, se agregan valores de estadística descriptiva al set de datos en formato de tabla.
+```{r}
+Tabla_Mort_1<- dat1 %>% 
+  summarize(Media_M = mean(Mortalidad),
+             Var_M = var(Mortalidad), sd = sd(Mortalidad), n=n())
+knitr::kable(Tabla_Mort_1,caption ="Media y varianza Mortalidad")
+```
+
+```{r}
+Tabla_Mort_2<- dat1 %>%
+  group_by(Subgrupo)%>%
+  summarize(Media_M = mean(Mortalidad),
+             Var_M = var(Mortalidad), sd = sd(Mortalidad), n=n())
+knitr::kable(Tabla_Mort_2,caption ="Media y varianza Mortalidad por Subgrupo")
+```
+
+```{r, warning=FALSE, message=FALSE}
+Tabla_Mort_3<- dat1 %>%
+  group_by(Centro,Subgrupo)%>%
+  summarize(Media_M = mean(Mortalidad),
+             Var_M = var(Mortalidad), sd = sd(Mortalidad), n=n())
+knitr::kable(Tabla_Mort_3,caption ="Media y varianza Mortalidad por Centro y Subgrupo")
+```
+
+```{r, warning=FALSE, message=FALSE}
+Tabla_Mort_3<- dat1 %>%
+  group_by(Centro,Subgrupo,Unidad)%>%
+  summarize(Media_M = mean(Mortalidad),
+             Var_M = var(Mortalidad), sd = sd(Mortalidad), n=n())
+knitr::kable(Tabla_Mort_3,caption ="Media y varianza Mortalidad por Centro y Subgrupo")
+```
+
+# FIN DE CURSO. ANALISIS ESTADISTICO
+
+# Se agrega una nueva variable al dataset (Days), la cual da cuenta en el tiempo del comportamiento de la variable respuesta (Mortalidad). Cargamos dicho dataset.
+```{r}
+dat2 <- read_excel("dataset3.xlsx")
+summary(dat2)
+str(dat2)
+```
+
+# Transformamos a factor lo que haya que transformar.
+```{r}
+dat2$Centro <- as.factor(dat2$Centro)
+dat2$Subgrupo <- as.factor(dat2$Subgrupo)
+dat2$Unidad <- as.factor(dat2$Unidad)
+str(dat2)
+summary(dat2)
+```
+
+# Exploramos el comportamiento de la variable respuesta en función del tiempo (Days)
+```{r}
+ggplot(dat2, aes(x=Days, y=Mortalidad))+
+  geom_point()+
+  ggtitle("Mortalidad vs Tiempo") + geom_smooth(method=loess, se=FALSE)+ 
+  scale_x_continuous(name = "Días ", limits = c(0, 250), breaks = seq(10, 250, 40))+ 
+  scale_y_continuous(name = "Mortalidad (n)", limits = c(50,500), breaks = seq(50, 500, 50))+ 
+  theme(plot.title = element_text(hjust = 0.5), panel.background = element_blank(), axis.line = element_line(color="black"), axis.line.x = element_line(color="black"))+ 
+  theme_bw()+
+  facet_wrap(~Centro)
+```
+# En el exploratorio se observa un comportamiento no lineal de la variable respuesta en los distintos centros.
+
+```{r}
+ggplot(dat2, aes(x=Days, y=Mortalidad))+
+  geom_point()+
+  ggtitle("Mortalidad vs Tiempo") + geom_smooth(method=loess, se=FALSE)+ 
+  scale_x_continuous(name = "Días ", limits = c(0, 250), breaks = seq(10, 250, 40))+ 
+  scale_y_continuous(name = "Mortalidad (n)", limits = c(50,500), breaks = seq(50, 500, 50))+ 
+  theme(plot.title = element_text(hjust = 0.5), panel.background = element_blank(), axis.line = element_line(color="black"), axis.line.x = element_line(color="black"))+ 
+  theme_bw()+
+  facet_wrap(~Subgrupo)
+```
+# Agrupando datos por "Subgrupo", se observa un comportamiento no lineal de la variable respuesta en los distintos centros.
+
+```{r}
+dat3<- dat2%>%
+  filter(N_peces!=0)%>%
+  mutate(per_mort=(Mortalidad/N_peces))
+# transformar variable mortalidad en fracción
+```
+
+```{r}
+ggplot(dat3, aes(x=per_mort))+
+  geom_histogram()
+```
+
+```{r}
+ggplot(dat4, aes(x=Days, y=sqrt_mort))+
+  geom_point()
+```
+
+# Se observa que el set de datos tiene muchos ceros. Por lo tanto, aplicamos un Modelo Poisson inflado con ceros.
+
+```{r}
+modelo1<- vglm(Mortalidad ~ Days, pospoisson, data = dat2)
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
