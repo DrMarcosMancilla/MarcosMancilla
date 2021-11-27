@@ -237,6 +237,12 @@ ggplot(dat3, aes(x=per_mort))+
 ```
 
 ```{r}
+dat4<- dat3%>%
+   mutate(sqrt_mort=(per_mort))
+# transformar variable per_mort a raiz cuadrada
+```
+
+```{r}
 ggplot(dat4, aes(x=Days, y=sqrt_mort))+
   geom_point()
 ```
@@ -244,7 +250,7 @@ ggplot(dat4, aes(x=Days, y=sqrt_mort))+
 # Se observa que el set de datos tiene muchos ceros. Por lo tanto, aplicamos un Modelo Poisson inflado con ceros.
 
 ```{r}
-modelo1<- vglm(Mortalidad ~ Days, pospoisson, data = dat2)
+modelo1<- vglm(Mortalidad ~ Days, pospoisson, data = dat4)
 ```
 
 ```{r}
