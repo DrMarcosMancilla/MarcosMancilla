@@ -2,7 +2,10 @@
 title: "QTL-SRS"
 author: "Marcos Mancilla"
 date: "`r format(Sys.time(), '%d %B %Y')`"
-output: pdf_document
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
 ---
 
 ```{r setup, include=FALSE}
@@ -15,7 +18,8 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(knitr)
-library(VGAM)
+library(pscl)
+library(sjPlot)
 ```
 
 # Realizando análisis exploratorio de datos
@@ -173,19 +177,13 @@ Tabla_Mort_3<- dat1 %>%
 knitr::kable(Tabla_Mort_3,caption ="Media y varianza Mortalidad por Centro y Subgrupo")
 ```
 
-```{r, warning=FALSE, message=FALSE}
-Tabla_Mort_3<- dat1 %>%
-  group_by(Centro,Subgrupo,Unidad)%>%
-  summarize(Media_M = mean(Mortalidad),
-             Var_M = var(Mortalidad), sd = sd(Mortalidad), n=n())
-knitr::kable(Tabla_Mort_3,caption ="Media y varianza Mortalidad por Centro y Subgrupo")
-```
-
 # FIN DE CURSO. ANALISIS ESTADISTICO
 
 # Se agrega una nueva variable al dataset (Days), la cual da cuenta en el tiempo del comportamiento de la variable respuesta (Mortalidad). Cargamos dicho dataset.
 ```{r}
 dat2 <- read_excel("dataset3.xlsx")
+# Omitimos filas sin datos
+dat2<-na.omit(dat2)
 summary(dat2)
 str(dat2)
 ```
@@ -200,19 +198,32 @@ summary(dat2)
 ```
 
 # Exploramos el comportamiento de la variable respuesta en función del tiempo (Days)
-```{r}
+
+```{r, warning=FALSE, message=FALSE}
+ggplot(dat2, aes(x=Days, y=Mortalidad))+
+  geom_point()+
+  ggtitle("Mortalidad vs Tiempo") + geom_smooth(method=loess, se=FALSE)+ 
+  scale_x_continuous(name = "Días ", limits = c(1, 250), breaks = seq(10, 250, 40))+ 
+  scale_y_continuous(name = "Mortalidad (n)", limits = c(0,500), breaks = seq(0, 500, 50))+ 
+  theme(plot.title = element_text(hjust = 0.5), panel.background = element_blank(), axis.line = element_line(color="black"), axis.line.x = element_line(color="black"))+ 
+  theme_bw()
+```
+# En el exploratorio se observa un comportamiento no lineal de la variable respuesta en los distintos centros.
+
+```{r, warning=FALSE, message=FALSE}
 ggplot(dat2, aes(x=Days, y=Mortalidad))+
   geom_point()+
   ggtitle("Mortalidad vs Tiempo") + geom_smooth(method=loess, se=FALSE)+ 
   scale_x_continuous(name = "Días ", limits = c(0, 250), breaks = seq(10, 250, 40))+ 
-  scale_y_continuous(name = "Mortalidad (n)", limits = c(50,500), breaks = seq(50, 500, 50))+ 
+  scale_y_continuous(name = "Mortalidad (n)", limits = c(0,500), breaks = seq(50, 500, 50))+ 
   theme(plot.title = element_text(hjust = 0.5), panel.background = element_blank(), axis.line = element_line(color="black"), axis.line.x = element_line(color="black"))+ 
   theme_bw()+
   facet_wrap(~Centro)
 ```
-# En el exploratorio se observa un comportamiento no lineal de la variable respuesta en los distintos centros.
 
-```{r}
+# Vemos la distribución de la variable respuesta vs tiempo en función del Subgrupo.
+
+```{r, warning=FALSE, message=FALSE}
 ggplot(dat2, aes(x=Days, y=Mortalidad))+
   geom_point()+
   ggtitle("Mortalidad vs Tiempo") + geom_smooth(method=loess, se=FALSE)+ 
@@ -224,39 +235,49 @@ ggplot(dat2, aes(x=Days, y=Mortalidad))+
 ```
 # Agrupando datos por "Subgrupo", se observa un comportamiento no lineal de la variable respuesta en los distintos centros.
 
+# Dada la distribución de datos, aplicamos el modelo lineal que se ajuste a una distribución de Poisson.
+
 ```{r}
-dat3<- dat2%>%
-  filter(N_peces!=0)%>%
-  mutate(per_mort=(Mortalidad/N_peces))
-# transformar variable mortalidad en fracción
+modelo0<-glm(Mortalidad ~ Days, family = poisson, data=dat2)
+summary(modelo0)
 ```
 
 ```{r}
-ggplot(dat3, aes(x=per_mort))+
-  geom_histogram()
+modelo1<- glm(Mortalidad ~ Days+Centro, family=poisson(), data = dat2)
+summary(modelo1)
 ```
 
 ```{r}
-dat4<- dat3%>%
-   mutate(sqrt_mort=(per_mort))
-# transformar variable per_mort a raiz cuadrada
+modelo2<- glm(Mortalidad ~ Days+Subgrupo+Centro, family=poisson(), data = dat2)
+summary(modelo2)
+```
+
+# Se observa que el set de datos tiene muchos ceros. Por lo tanto, aplicamos un Modelo Poisson inflado con ceros. Se habilita paquete pscl previamente.
+
+```{r}
+modelo3<- zeroinfl(Mortalidad ~ Days, dist="poisson", data = dat2)
+summary(modelo3)
 ```
 
 ```{r}
-ggplot(dat4, aes(x=Days, y=sqrt_mort))+
-  geom_point()
-```
-
-# Se observa que el set de datos tiene muchos ceros. Por lo tanto, aplicamos un Modelo Poisson inflado con ceros.
-
-```{r}
-modelo1<- vglm(Mortalidad ~ Days, pospoisson, data = dat4)
+modelo4<- zeroinfl(Mortalidad ~ Days+Subgrupo, dist="poisson", data = dat2)
+summary(modelo4)
 ```
 
 ```{r}
-
+modelo5<- zeroinfl(Mortalidad ~ Days+Centro, dist="poisson", data = dat2)
+summary(modelo5)
 ```
 
+# No se puede correr Modelo Poisson inflado con ceros usando los factores Subgrupo y Centro al mismo tiempo.
+
+# Para comparar los modelos, usamos la función AIC.
 ```{r}
-
+dat4<- AIC(modelo0,modelo1, modelo2, modelo3, modelo4, modelo5)
+tabla2<-dat4
+knitr::kable(tabla2,caption ="Comparación de modelos")
 ```
+
+# De todos los modelos generados, el modelo 5 tiene menor valor AIC. Por lo tanto, este es el modelo que mejor se ajusta a los datos.
+
+# Conclusiones: En el modelo 5, todas las variables regresoras aportan significativamente al modelo (se rehcaza H0 que no hay efecto del coeficiente). Cuando no se aplica un modelo con distribución de Poisson inflado con ceros, la variable de clasificación "Centro C" (ver modelo 2) o "Centro D" (modelo 3) no aportan significativamente al modelo.
